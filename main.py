@@ -1,3 +1,4 @@
+import argparse
 from bs4 import BeautifulSoup
 import requests
 import csv
@@ -12,6 +13,12 @@ def time_for_func(func):
         stop = datetime.now()
         print('На парсинг сайта затрачено:', str(stop-start), ' секунд')
     return wrapper
+
+def parse_args():
+    parser = argparse.ArgumentParser(description='Number of pages for parsing')
+    parser.add_argument('-p', '--pages', type=int, default=1, help='Number of pages for parsing')
+    argsfromline = parser.parse_args()
+    return argsfromline
 
 
 def get_html(url):
@@ -116,6 +123,7 @@ def parsing(links):
         cars = get_data(get_html(link), cars)
         # get full information for cars
         [get_full_data(get_html(cars[i]['link']), cars, i) for i in cars]
+        # progress
         progress = int(k/len(links)*100)
         if progress < 100:
             print(f'Выполнено {progress}%. Пожалуйста, ожидайте.')
@@ -127,9 +135,15 @@ def parsing(links):
 if __name__ == '__main__':
     @time_for_func
     def main():
+        # get args from terminal
+        args = parse_args()
+        if args.pages == 1:
+            # get number pages for parsing from user input, if does't args in terminal
+            count = int(input("Введите количество страниц сайта для парсинга (каждая по 25 объявлений):"))
+        else:
+            # take number pages from terminal
+            count = args.pages
 
-        # get number pages for parsing from user
-        count = int(input("Введите количество страниц сайта для парсинга (каждая по 25 объявлений):"))
         # create links for parsing
         links = []
         [links.append("https://cars.av.by/filter?price_currency=2&page=" + str(page)) for page in range(1, count+1)]
