@@ -10,7 +10,7 @@ def time_for_func(func):
         func()
         stop = datetime.now()
         print('На парсинг сайта затрачено:', str(stop-start), ' секунд')
-    return wrapper()
+    return wrapper
 
 
 def get_html(url):
@@ -99,11 +99,11 @@ def get_full_data(html, cars, id):
 def save_to_scv(data):
     with open('data.csv', 'w') as outfile:
         writer = csv.writer(outfile)
-        try:
-            for i in data:
+        for i in data:
+            try:
                 writer.writerow(data[i].values())
-        except:
-            print(f'Произошла ошибка записи информации об автомобиле с id={i}. Это автомобиль: {data[i]}')
+            except:
+                print(f'Произошла ошибка записи информации об автомобиле с id={i}. Это автомобиль: {data[i]}')
 
 
 if __name__ == '__main__':
@@ -127,6 +127,6 @@ if __name__ == '__main__':
         # save to scv file
         save_to_scv(cars)
 
-
+    main()
 
 
