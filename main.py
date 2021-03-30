@@ -3,6 +3,7 @@ import requests
 import csv
 from _datetime import datetime
 
+
 def time_for_func(func):
 
     def wrapper():
@@ -105,25 +106,37 @@ def save_to_scv(data):
             except:
                 print(f'Произошла ошибка записи информации об автомобиле с id={i}. Это автомобиль: {data[i]}')
 
+def parsing(links):
+    cars = {}
+    k = 0
+    print(f'Загружаю данные с сайта.')
+    for link in links:
+        k += 1
+        # get cars from html code
+        cars = get_data(get_html(link), cars)
+        # get full information for cars
+        [get_full_data(get_html(cars[i]['link']), cars, i) for i in cars]
+        progress = int(k/len(links)*100)
+        if progress < 100:
+            print(f'Выполнено {progress}%. Пожалуйста, ожидайте.')
+        else:
+            print('Готово. Результат парсинга:')
+    return cars
+
 
 if __name__ == '__main__':
     @time_for_func
     def main():
-        cars = {}
-        # count pages
+
+        # get number pages for parsing from user
         count = int(input("Введите количество страниц сайта для парсинга (каждая по 25 объявлений):"))
-        # url
-        for page in range(1, count+1):
-            print(f'Гружу {page}-ую страницу сайта:')
-            url = "https://cars.av.by/filter?price_currency=2&page=" + str(page)
-            # get cars
-            cars = get_data(get_html(url), cars)
-            # get full information for cars
-            [get_full_data(get_html(cars[i]['link']), cars, i) for i in cars]
-
-            # print cars
-            [print(cars[i]) for i in cars]
-
+        # create links for parsing
+        links = []
+        [links.append("https://cars.av.by/filter?price_currency=2&page=" + str(page)) for page in range(1, count+1)]
+        # parsing av.by
+        cars = parsing(links)
+        # print cars
+        [print(cars[i]) for i in cars]
         # save to scv file
         save_to_scv(cars)
 
